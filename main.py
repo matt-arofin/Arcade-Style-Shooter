@@ -15,8 +15,8 @@ guns = []
 level = 1
 for i in range(1, 4):
     bgs.append(pygame.image.load(f'assets/bgs/{i}.png'))
-    banners.append(pygame.image.load(f'assets/bgs/{i}.png'))
-    guns.append(pygame.image.load(f'assets/bgs/{i}.png'))
+    banners.append(pygame.image.load(f'assets/banners/{i}.png'))
+    guns.append(pygame.image.load(f'assets/guns/{i}.png'))
 
 def draw_gun():
     mouse_pos = pygame.mouse.get_pos()
@@ -29,6 +29,18 @@ def draw_gun():
         slope = -1000000
     angle = math.atan(slope)
     rotation = math.degrees(angle)
+    if mouse_pos[0] < WIDTH/2:
+        gun = pygame.transform.flip(guns[level - 1], True, False)
+        if mouse_pos[1] < 600:
+            screen.blit(pygame.transform.rotate(gun, 90 - rotation), (WIDTH/2 - 90, HEIGHT - 250))
+            if clicks[0]:
+                pygame.draw.circle(screen, lasers[level - 1], mouse_pos, 5)
+    else:
+        gun = guns[level - 1]
+        if mouse_pos[1] < 600:
+            screen.blit(pygame.transform.rotate(gun, 270 - rotation), (WIDTH/2 - 30, HEIGHT - 250))
+            if clicks[0]:
+                pygame.draw.circle(screen, lasers[level - 1], mouse_pos, 5)
 
 run = True
 while run:

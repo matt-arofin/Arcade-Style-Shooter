@@ -16,7 +16,12 @@ target_images = [[], [], []]
 targets = {1: [10, 5, 3],
            2: [12, 8, 5],
            3: [15, 12, 8, 3]}
-level = 1
+level = 3
+points = 0
+total_shots = 0
+mode = 0
+ammo = 0
+shot = False
 
 for i in range(1, 4):
     bgs.append(pygame.image.load(f'assets/bgs/{i}.png'))
@@ -55,17 +60,42 @@ def draw_gun():
             if clicks[0]:
                 pygame.draw.circle(screen, lasers[level - 1], mouse_pos, 5)
 
+def move_level(coords):
+    if level == 1 or level == 2:
+        max_val = 3
+    else:
+        max_val = 4
+    for i in range(max_val):
+        for j in range(len(coords[i])):
+            my_coords = coords[i][j]
+            if my_coords[0] < -150:
+                coords[i][j] = (WIDTH, my_coords[1])
+            else:
+                coords[i][j] = (my_coords[0] - 2**i, my_coords[1])
+    return coords
+
 def draw_level(coords):
     if level == 1 or level ==2:
         target_rects = [[], [], []]
     else:
-        target_rects = [[], [], []]
+        target_rects = [[], [], [], []]
     for i in range(len(coords)):
         for j in range(len(coords[i])):
-            target_rects[i].append(pygame.rect.Rect(coords[i][j][0] + 20, coords[i][j][1]),
-                                   (60 - i*12, 60 - i*12))
+            target_rects[i].append(pygame.rect.Rect((coords[i][j][0] + 20, coords[i][j][1]),
+                                   (60 - i*12, 60 - i*12)))
             screen.blit(target_images[level-1][i], coords[i][j])
     return target_rects
+
+def check_shot(targets, coords):
+    global points
+    mouse_pos = pygame.mouse.get_pos()
+    for i in range(len(targets)):
+        for j in range(len(targets[i])):
+            if targets[i][j].collidepoint(mouse_pos):
+                coords[i].pop(j)
+                points += 10 + 10 * (i**2)
+                # Add sounds for enemy hit
+    return coords
 
 # initialise enemy coordinates
 one_coords = [[], [], []]
@@ -78,11 +108,11 @@ for i in range(3):
 for i in range(3):
     my_list = targets[2]
     for j in range(my_list[i]):
-        one_coords[i].append((WIDTH//(my_list[i]) * j, 300 - (i * 150) + 30 * (j % 2)))
-for i in range(3):
+        two_coords[i].append((WIDTH//(my_list[i]) * j, 300 - (i * 150) + 30 * (j % 2)))
+for i in range(4):
     my_list = targets[3]
     for j in range(my_list[i]):
-        one_coords[i].append((WIDTH//(my_list[i]) * j, 300 - (i * 100) + 30 * (j % 2)))
+        three_coords[i].append((WIDTH//(my_list[i]) * j, 300 - (i * 100) + 30 * (j % 2)))
 
 run = True
 while run:
@@ -91,13 +121,38 @@ while run:
     screen.fill('black')
     screen.blit(bgs[level -1], (0, 0))
     screen.blit(banners[level - 1], (0, HEIGHT - 200))
-
+    if level == 1:
+        target_boxes = draw_level(one_coords)
+        one_coords = move_level(one_coords)
+        if shot:
+            one_coords = check_shot(target_boxes, one_coords)
+            shot = False
+    elif level == 2:
+        target_boxes = draw_level(two_coords)
+        two_coords = move_level(two_coords)
+        if shot:
+            two_coords = check_shot(target_boxes, two_coords)
+            shot = False
+    elif level == 3:
+        target_boxes = draw_level(three_coords)
+        three_coords = move_level(three_coords)
+        if shot:
+            three_coords = check_shot(target_boxes, three_coords)
+            shot = False
     if level > 0:
         draw_gun()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            mouse_position = pygame.mouse.get_pos()
+            if (0 < mouse_position[0] < WIDTH) and (0 < mouse_position[1] < HEIGHT - 200):
+                shot = True
+                total_shots += 1
+                if mode == 1:
+                    ammo -=1
+
 
     pygame.display.flip()
 pygame.quit()

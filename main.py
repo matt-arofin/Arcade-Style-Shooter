@@ -24,10 +24,18 @@ ammo = 0
 time_passed = 0
 time_remaining = 0
 counter = 1
+best_freeplay = 0
+best_ammo = 0
+best_timed = 0
 shot = False
 menu = True
 game_over = False
 pause = False
+clicked = False
+write_values = False
+menu_img = pygame.image.load(f'assets/menus/mainMenu.png')
+game_over_img = pygame.image.load(f'assets/menus/gameOver.png')
+pause_img = pygame.image.load(f'assets/menus/pause.png')
 
 for i in range(1, 4):
     bgs.append(pygame.image.load(f'assets/bgs/{i}.png'))
@@ -117,6 +125,57 @@ def check_shot(targets, coords):
                 points += 10 + 10 * (i**2)
                 # Add sounds for enemy hit
     return coords
+
+def draw_menu():
+    global game_over, pause, mode, level, menu, time_passed, total_shots, points, ammo, time_remaining, best_ammo, best_timed, best_freeplay, write_values
+    game_over = False
+    pause = False
+
+    screen.blit(menu_img, (0, 0))
+    mouse_pos = pygame.mouse.get_pos()
+    clicks = pygame.mouse.get_pressed()
+    freeplay_button = pygame.rect.Rect((170, 524), (260, 100))
+    screen.blit(font.render(f'{best_freeplay}', True, 'black'), (340, 580))
+    ammo_button = pygame.rect.Rect((475, 524), (260, 100))
+    screen.blit(font.render(f'{best_ammo}', True, 'black'), (650, 580))
+    timed_button = pygame.rect.Rect((170, 661), (260, 100))
+    screen.blit(font.render(f'{best_timed}', True, 'black'), (350, 710))
+    reset_button = pygame.rect.Rect((475, 661), (260, 100))
+
+    if freeplay_button.collidepoint(mouse_pos) and clicks[0] and not clicked:
+        mode = 0
+        level = 1
+        menu = False
+        time_passed = 0
+        total_shots = 0
+        points = 0
+    if ammo_button.collidepoint(mouse_pos) and clicks[0] and not clicked:
+        mode = 1
+        level = 1
+        menu = False
+        time_passed = 0
+        ammo = 81
+        total_shots = 0
+        points = 0
+    if timed_button.collidepoint(mouse_pos) and clicks[0] and not clicked:
+        mode = 2
+        level = 1
+        menu = False
+        time_remaining = 30
+        time_passed = 0
+        total_shots = 0
+        points = 0
+    if reset_button.collidepoint(mouse_pos) and clicks[0] and not clicked:
+        best_freeplay = 0
+        best_ammo = 0
+        best_timed = 0
+        write_values = True
+
+def draw_game_over():
+    pass
+
+def draw_pause():
+    pass
 
 # initialise enemy coordinates
 one_coords = [[], [], []]

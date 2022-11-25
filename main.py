@@ -51,6 +51,12 @@ for i in range(1, 4):
         for j in range(1, 5):
             target_images[i - 1].append(pygame.transform.scale(
                 pygame.image.load(f'assets/targets/{i}/{j}.png'), (120 - (j * 18), 80 - (j * 12))))
+file = open('high_scores.txt', 'r')
+read_file = file.readlines()
+file.close()
+best_freeplay = int(read_file[0])
+best_ammo = int(read_file[1])
+best_timed = int(read_file[2])
 
 def draw_score():
     points_text = font.render(f'Points: {points}', True, 'black')
@@ -192,7 +198,7 @@ def draw_game_over():
     clicks = pygame.mouse.get_pressed()
     exit_button = pygame.rect.Rect((170, 661), (260, 100))
     menu_button = pygame.rect.Rect((475, 661), (260, 100))
-    screen.blit(big_font.render(f'{display_score}', True, 'black', (650, 570)))
+    screen.blit(big_font.render(f'{display_score}', True, 'black'), (650, 570))
     if menu_button.collidepoint(mouse_pos) and clicks[0] and not clicked:
         clicked = True
         level = 0
@@ -325,7 +331,7 @@ while run:
     if level > 0:
         if target_boxes == [[], [], []] and level < 3:
             level +=1
-        if (level == 3 and target_boxes == [[], [], [], []]) or ( mode = 1 and ammo == 0) or (mode == 2 and time_remaining == 0):
+        if (level == 3 and target_boxes == [[], [], [], []]) or ( mode == 1 and ammo == 0) or (mode == 2 and time_remaining == 0):
             new_coords = True
             if mode == 0:
                 if time_passed < best_freeplay or best_freeplay == 0:
@@ -340,6 +346,11 @@ while run:
                     best_timed = points
                     write_values = True
             game_over = True
+    if write_values:
+        file = open('high_scores.txt', 'w')
+        file.write(f'{best_freeplay}\n{best_ammo}\n{best_timed}')
+        file.close()
+        write_values = False
 
 
     pygame.display.flip()
